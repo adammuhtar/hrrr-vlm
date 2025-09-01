@@ -3,7 +3,7 @@
 [![Python 3.13](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-%234584b6?&logo=Python&logoColor=white%5BPython)](https://www.python.org/downloads/release/python-3132)
 [![PyTorch 2.8.0](https://img.shields.io/badge/PyTorch-2.8.0-red?&logo=PyTorch&logoColor=white%5BPyTorch)](https://pytorch.org/get-started/locally/)
 [![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-HRRR_ALL_SigLIP-%23FFCC4D)](https://huggingface.co/AdamMuhtar/HRRR-ALL-SigLIP)
-[![PyPI license](https://img.shields.io/pypi/l/ansicolortags.svg)](https://pypi.python.org/pypi/ansicolortags/)
+[![MIT license](https://img.shields.io/pypi/l/ansicolortags.svg)](https://opensource.org/license/mit)
 <a href="https://colab.research.google.com/github/adammuhtar/hrrr-vlm/blob/main/notebooks/hrrr-all-siglip.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
 # HRRR VLM
