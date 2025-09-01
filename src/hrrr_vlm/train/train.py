@@ -185,9 +185,7 @@ class HRRRLoRASigLIPTrainer:
             base_model = SiglipModel.from_pretrained(self.model_name)
             base_model = base_model.to(self.device)
 
-            logger.info(
-                "Applying weather-optimized LoRA configuration: %s", self.lora_config
-            )
+            logger.info("Applying LoRA configuration", lora_config=self.lora_config)
             config = LoraConfig(**self.lora_config)
             self.model = get_peft_model(base_model, config)
 
@@ -562,9 +560,7 @@ class HRRRLoRASigLIPTrainer:
                             running_loss += loss_value * batch_size
                         except RuntimeError as e:
                             if "out of memory" in str(e).lower():
-                                logger.warning(
-                                    "GPU out of memory at batch %d, skipping", batch_idx
-                                )
+                                logger.warning("GPU out of memory", batch_idx=batch_idx)
                                 torch.cuda.empty_cache()
                                 continue
                             raise
@@ -619,12 +615,10 @@ class HRRRLoRASigLIPTrainer:
                 training_time % 60,
             )
             logger.info(
-                "Best model achieved at epoch %d with validation loss: %.4f",
-                best_epoch,
-                best_val_loss,
+                "Best model checkpoint",
+                best_epoch=best_epoch,
+                best_val_loss=best_val_loss,
             )
-
-            # Final save is not needed since we save the best model during training
 
         except Exception as e:
             if isinstance(e, (ModelInitError, ModelTrainingError)):
@@ -781,16 +775,16 @@ class HRRRLoRASigLIPTrainer:
                 self.setup_model()
             model_path_obj = Path(model_path)
             if not model_path_obj.exists():
-                msg = f"Weather model path does not exist: {model_path}"
+                msg = f"Model path does not exist: {model_path}"
                 logger.error(msg)
                 raise ModelInitError(msg)  # noqa: TRY301
             self.model.load_adapter(model_path, adapter_name=adapter_name)
             # Set the newly loaded adapter as the active adapter
             self.model.set_adapter(adapter_name)
             logger.info(
-                "Weather SigLIP LoRA adapter '%s' loaded from: %s",
-                adapter_name,
-                model_path,
+                "SigLIP LoRA adapter loaded",
+                adapter_name=adapter_name,
+                model_path=model_path,
             )
         except Exception as e:
             if isinstance(e, ModelInitError):
@@ -892,9 +886,9 @@ class HRRRLoRASigLIPTrainer:
                 results["probabilities"] = probs.squeeze(0).cpu().numpy().tolist()
 
             logger.info(
-                "Weather image test complete - Predicted: %s (confidence: %.3f)",
-                weather_descriptions[predicted_idx],
-                results["confidence"],
+                "Weather image test complete",
+                prediction=weather_descriptions[predicted_idx],
+                confidence=results["confidence"],
             )
 
         except Exception as e:

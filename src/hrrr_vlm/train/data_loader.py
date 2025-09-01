@@ -102,11 +102,11 @@ class HRRRImageCaptionDataSetup(Dataset):
             raise DataError(msg) from e
 
         if not data:
-            msg = "No valid weather data found"
+            msg = "No valid image-caption data found"
             logger.error(msg)
             raise DataError(msg)
 
-        logger.info("Loaded %d valid weather samples", len(data))
+        logger.info("Loaded image-caption samples", num_samples=len(data))
         return data
 
     def _process_data_line(
