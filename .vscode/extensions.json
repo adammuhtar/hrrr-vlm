@@ -1,0 +1,19 @@
+{
+    "recommendations": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "ms-toolsai.jupyter",
+        "ms-toolsai.jupyter-keymap",
+        "ms-toolsai.jupyter-renderers",
+        "ms-toolsai.vscode-jupyter-powertoys",
+        "ms-azuretools.vscode-docker",
+        "charliermarsh.ruff",
+        "kevinrose.vsc-python-indent",
+        "oderwat.indent-rainbow",
+        "christian-kohler.path-intellisense",
+        "euskadi31.json-pretty-printer",
+        "yzhang.markdown-all-in-one",
+        "tomoki1207.pdf",
+    ]
+}
