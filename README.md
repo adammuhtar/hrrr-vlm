@@ -2,7 +2,7 @@
 [![uv](https://img.shields.io/badge/uv-%2330173d?&logo=uv&labelColor=%235A5A5A)](https://docs.astral.sh/uv/getting-started/installation/)
 [![Python 3.13](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-%234584b6?&logo=Python&logoColor=white%5BPython)](https://www.python.org/downloads/release/python-3132)
 [![PyTorch 2.8.0](https://img.shields.io/badge/PyTorch-2.8.0-red?&logo=PyTorch&logoColor=white%5BPyTorch)](https://pytorch.org/get-started/locally/)
-[![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-HRRR_ALL_SigLIP-%23FFCC4D)](https://huggingface.co/AdamMuhtar/HRRR-ALL-SigLIP)
+[![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-HRRR_VLM-%23FFCC4D)](https://huggingface.co/AdamMuhtar/HRRR-ALL-SigLIP)
 [![MIT license](https://img.shields.io/pypi/l/ansicolortags.svg)](https://opensource.org/license/mit)
 <a href="https://colab.research.google.com/github/adammuhtar/hrrr-vlm/blob/main/notebooks/hrrr-all-siglip.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
 
@@ -27,6 +27,12 @@ This repo contains a practical recipe for adapting a CLIP-based VLMs to a scient
 - **Adapts SigLIP using LoRA**, a parameter-efficient fine-tuning approach that’s fast to train and easy to reproduce.
 - **Evaluates retrieval and embeddings**, showing better cross-modal retrieval than baselines and **climate-coherent clustering** in the learned embedding space.
 - **Checks downstream signal** via a linear probe (logistic regression) for **hurricane occurrence**, revealing predictive signal even without task-specific training.
+
+The full dataset and LoRA adapters can be obtained at the following links:
+* https://huggingface.co/datasets/AdamMuhtar/NOAA-HRRR-HRRRAK-All-ImageCaption
+* https://huggingface.co/datasets/AdamMuhtar/NOAA-HRRR-CONUS-ImageCaption
+* https://huggingface.co/AdamMuhtar/HRRR-ALL-SigLIP
+* https://huggingface.co/AdamMuhtar/HRRR-CONUS-SigLIP
 
 ![samples](images/sample-hrrr.png)
 
