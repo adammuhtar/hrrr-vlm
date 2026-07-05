@@ -1,0 +1,28 @@
+# VCS and OS cruft
+.git
+.gitignore
+**/.DS_Store
+
+# Python and tooling caches
+**/__pycache__
+*.pyc
+.venv
+.pytest_cache
+.ruff_cache
+.tox
+.coverage
+htmlcov
+
+# Local artefacts and large data (mounted as volumes instead)
+data
+models
+logs
+threshold_cache
+
+# Not needed inside the image
+notebooks
+tests
+.claude
+.serena
+Dockerfile
+docker-compose.yml

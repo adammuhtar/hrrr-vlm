@@ -1,0 +1,23 @@
+services:
+  dataset-generator:
+    build: .
+    image: hrrr-vlm
+    entrypoint: ["python", "scripts/dataset-generator.py"]
+    command: ["--help"]
+    volumes:
+      - ./data:/app/data
+      - hf-cache:/app/.cache/huggingface
+
+  model-finetuning:
+    build: .
+    image: hrrr-vlm
+    entrypoint: ["python", "scripts/model-finetuning.py"]
+    command: ["--help"]
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - hf-cache:/app/.cache/huggingface
+
+volumes:
+  hf-cache:
