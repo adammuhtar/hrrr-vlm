@@ -1,8 +1,17 @@
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "hrrr-vlm",
+#     "transformers>=5.13.0",
+# ]
+#
+# [tool.uv.sources]
+# hrrr-vlm = { path = "..", editable = true }
+# ///
 """Script to generate a CLIP image-caption dataset from NOAA HRRR data.
 
 Usage:
     ```bash
-    uv sync --locked --extra dataset
     uv run scripts/dataset-generator.py --help
     ```
 """

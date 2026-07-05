@@ -1,4 +1,12 @@
-# !/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "hrrr-vlm",
+# ]
+#
+# [tool.uv.sources]
+# hrrr-vlm = { path = "..", editable = true }
+# ///
 """Script to run LoRA fine-tuning of SigLIP model on HRRR dataset.
 
 Usage:
