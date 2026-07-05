@@ -6,7 +6,7 @@ import random
 import time
 from os import PathLike
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, NamedTuple, cast
+from typing import TYPE_CHECKING, Any, ClassVar, NamedTuple, cast
 
 import numpy as np
 import pandas as pd
@@ -15,6 +15,7 @@ from peft import LoraConfig, get_peft_model
 from PIL import Image
 from pydantic import (
     BaseModel,
+    ConfigDict,
     Field,
     NonNegativeFloat,
     NonNegativeInt,
@@ -75,7 +76,7 @@ class ModelTrainingConfig(BaseModel):
         max_length (`PositiveInt`): Maximum length for text tokenisation.
     """
 
-    model_config = DEFAULT_MODEL_CONFIG
+    model_config: ClassVar[ConfigDict] = DEFAULT_MODEL_CONFIG
     num_epochs: PositiveInt = Field(default=10, description="Number of training epochs")
     learning_rate: PositiveFloat = Field(
         default=5e-5, description="Learning rate for optimiser"

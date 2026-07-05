@@ -1,9 +1,9 @@
 """Configuration models for the HRRR VLM package using Pydantic v2."""
 
-from typing import Literal
+from typing import ClassVar, Literal
 
 import xarray as xr
-from pydantic import BaseModel, Field, PositiveInt
+from pydantic import BaseModel, ConfigDict, Field, PositiveInt
 from pydantic.functional_validators import field_validator
 
 from hrrr_vlm.utils.model_config import DEFAULT_MODEL_CONFIG
@@ -31,7 +31,7 @@ class WeatherVariableConfig(BaseModel):
             to the data.
     """
 
-    model_config = DEFAULT_MODEL_CONFIG
+    model_config: ClassVar[ConfigDict] = DEFAULT_MODEL_CONFIG
     variable: str = Field(default=..., description="Variable identifier")
     search_string: str = Field(default=..., description="GRIB search string")
     unit: str = Field(default=..., description="Unit of measurement")
@@ -70,7 +70,7 @@ class RegionConfig(BaseModel):
         description (`str`): Optional description of the region.
     """
 
-    model_config = DEFAULT_MODEL_CONFIG
+    model_config: ClassVar[ConfigDict] = DEFAULT_MODEL_CONFIG
     name: str = Field(..., description="Region name")
     bounds: list[float] = Field(
         ..., description="Region bounds as [lon_min, lon_max, lat_min, lat_max]"
@@ -135,7 +135,7 @@ class ModelConfig(BaseModel):
             model.
     """
 
-    model_config = DEFAULT_MODEL_CONFIG
+    model_config: ClassVar[ConfigDict] = DEFAULT_MODEL_CONFIG
     name: str = Field(..., description="Model name")
     product: str = Field(..., description="Model product")
     domain: str = Field(..., description="Model domain")
@@ -159,7 +159,7 @@ class DataGeneratorConfig(BaseModel):
         default_figsize (`tuple[int, int]`): Default figure size for plots.
     """
 
-    model_config = DEFAULT_MODEL_CONFIG
+    model_config: ClassVar[ConfigDict] = DEFAULT_MODEL_CONFIG
     output_dir: str = Field(..., description="Output directory path")
     cache_dir: str = Field(default="threshold_cache", description="Cache directory")
     enable_json_logging: bool = Field(default=False, description="Enable JSON logging")
