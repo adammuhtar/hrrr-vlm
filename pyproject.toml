@@ -12,43 +12,43 @@ maintainers = [
 requires-python = ">=3.11"
 dependencies = [
     "cartopy>=0.25.0",
-    "datasets>=4.0.0",
-    "herbie-data>=2025.7.0",
-    "matplotlib>=3.10.6",
-    "metpy>=1.7.0",
-    "numba>=0.61.2",
-    "peft>=0.17.0",
-    "polars>=1.32.3",
-    "protobuf>=6.32.0",
-    "pydantic>=2.11.7",
-    "scikit-learn>=1.7.1",
+    "datasets>=5.0.0",
+    "herbie-data>=2026.3.0",
+    "matplotlib>=3.11.0",
+    "metpy>=1.7.1",
+    "numba>=0.66.0",
+    "peft>=0.19.1",
+    "polars>=1.42.1",
+    "protobuf>=7.35.1",
+    "pydantic>=2.13.4",
+    "scikit-learn>=1.9.0",
     "seaborn>=0.13.2",
     "sentencepiece>=0.2.1",
     "structlog>=25.4.0",
-    "torch>=2.8.0",
-    "torchvision>=0.23.0",
-    "transformers>=4.56.0",
-    "umap-learn>=0.5.9.post2",
-    "xarray>=2025.8.0",
+    "torch>=2.12.1",
+    "torchvision>=0.27.1",
+    "transformers>=5.13.0",
+    "umap-learn>=0.5.12",
+    "xarray>=2026.4.0",
 ]
 
 [dependency-groups]
 dev = [
-    "ipykernel>=6.30.1",
-    "mypy>=1.17.1",
-    "pip>=25.2",
+    "ipykernel>=7.3.0",
+    "ty>=0.0.56",
+    "pip>=26.1.0",
 ]
 lint = [
-    "ruff>=0.12.11",
+    "ruff>=0.15.20",
 ]
 test = [
-    "pytest>=8.4.1",
-    "pytest-cov>=6.2.1",
-    "tox-uv>=1.28.0",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "tox-uv-bare>=1.35.2",
 ]
 
 [build-system]
-requires = ["uv_build>=0.8.14,<0.9.0"]
+requires = ["uv_build>=0.11.26,<0.12.0"]
 build-backend = "uv_build"
 
 [tool.uv.sources]
@@ -64,98 +64,44 @@ name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
-[tool.mypy]
-check_untyped_defs = true
-disallow_any_generics = true
-disallow_incomplete_defs = true
-disallow_untyped_calls = true
-disallow_untyped_defs = true
-ignore_missing_imports = false
-no_implicit_optional = true
-plugins = ["pydantic.mypy"]
-
 [tool.ruff.lint]
 preview = true
-select = [
-    "ERA",      # Remove commented out code
-    "FAST",     # FastAPI linting
-    "YTT",      # Checks for misues of `sys.version` or `sys.version_info`
-    "ANN",      # Flake8 annotations
-    "ASYNC",    # Flake8 async
-    "S",        # Flake8 bandit security checks
-    "FBT",      # Flake8 boolean trap
-    "B",        # Flake8 bugbear
-    "A",        # Flake8 builtins
-    "C4",       # Flake8 comprehensions
-    "DTZ",      # Flake8 datetime
-    "T10",      # Flake8 debugger
-    "EM",       # Flake8 error messages
-    "EXE",      # Flake8 executables
-    "FIX",      # Flake8 fixme
-    "FA",       # Flake8 future annotations for Python 3.9 and below
-    "INT",      # Flake8 gettext
-    "ISC",      # Flake8 implicit string concatenation
-    "ICN",      # Flake8 import conventions
-    "LOG",      # Flake8 logging
-    "G",        # Flake8 logging format
-    "INP",      # Flake8 dunder init checks
-    "PIE",      # Flake8 miscellaneous lints
-    "T20",      # Flake8 print statements
-    "PT",       # Flake8 pytest style
-    "Q",        # Flake8 quotes
-    "RSE",      # Flake8 raise statements
-    "RET",      # Flake8 return statements
-    "SLF",      # Flake8 self
-    "SIM",      # Flake8 simplification suggestions
-    "SLOT",     # Flake8 slots
-    "TID",      # Flake8 tidy imports
-    "TD",       # Flake8 todos
-    "TC",       # Flake8 type checking
-    "ARG",      # Flake8 unused arguments
-    "PTH",      # Flake8 use pathlib
-    "FLY",      # flynt linter
-    "I",        # isort linter
-    "NPY",      # NumPy-specific rules
-    "PD",       # Flake8 linting for pandas
-    "N",        # PEP 8 naming conventions
-    "PERF",     # Perflint performance anti-patterns
-    "E", "W",   # pycodestyle linter
-    "DOC",      # pydoclint linter
-    "D",        # pydocstyle linter
-    "F",        # Pyflakes linter
-    "PGH",      # pygrep-hooks linter
-    "PL",       # Pylint linter
-    "UP",       # pyupgrade linter
-    "FURB",     # Refurb linter
-    "RUF",      # Ruff-specific rules
-    "TRY",      # Tryceratops linter
-]
+select = ["ALL"]
 ignore = [
     "ANN401",   # Allow Any type
+    "BLE001",   # Allow catching broad Exception
+    "C901",     # Allow complex structures
+    "COM812",   # Incompatible with formatter skip-magic-trailing-comma
+    "CPY001",   # Copyright notices not required
     "D205",     # Blank line after docstring description not required
+    "ISC001",   # Incompatible with formatter
     "PLR0911",  # Allow many return statements
     "PLR0912",  # Allow many branching conditional statements
     "PLR0913",  # Allow many arguments
     "PLR0914",  # Allow many local variables
     "PLR0915",  # Allow many statements
     "PLR0917",  # Allow many positional arguments
+    "PLW0717",  # Allow many statements in try clause
     "TRY003",   # Allow messages not defined in the exception class itself
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "test_*.py" = [
-    "S101",     # allow use of assert statements
-    "S106",     # allow pseudo hardcoded passwords
-    "S108",     # allow temporary files
-    "SLF001",   # allow access to private members
-    "PLR2004",  # allow use of magic numbers
-    "PLR6301",  # allow undecorated methods
+    "S101",     # Allow use of assert statements
+    "S106",     # Allow pseudo hardcoded passwords
+    "S108",     # Allow temporary files
+    "SLF001",   # Allow access to private members
+    "PLR2004",  # Allow use of magic numbers
+    "PLR6301",  # Allow undecorated methods
+    "RUF069",   # Allow float equality comparisons against exact literals
 ]
 "*.ipynb" = [
-    "E402",     # allow module level import not at top of file
-    "E501",     # allow long lines
-    "T201",     # allow print statements
-    "I001",     # allow unsorted imports
+    "E402",     # Allow module level import not at top of file
+    "E501",     # Allow long lines
+    "T201",     # Allow print statements
+    "I001",     # Allow unsorted imports
+    "FBT003",   # Allow boolean positional values in calls
+    "S106",     # Allow placeholder tokens in login examples
 ]
 
 [tool.ruff.format]
@@ -163,6 +109,9 @@ quote-style = "double"
 skip-magic-trailing-comma = true
 line-ending = "auto"
 docstring-code-format = true
+
+[tool.ruff.lint.isort]
+split-on-trailing-comma = false
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
