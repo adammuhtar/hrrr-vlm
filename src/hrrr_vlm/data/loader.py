@@ -74,7 +74,7 @@ def get_first_mondays(
     return dates
 
 
-class HRRRImageCaptionDataset(Dataset):
+class HRRRImageCaptionDataset(Dataset[tuple[Image.Image, str]]):
     """PyTorch Dataset that integrates with existing HRRR VLM modules.
 
     This dataset reads from JSONL files produced by WeatherDataGenerator
@@ -202,11 +202,11 @@ class HRRRImageCaptionDataset(Dataset):
         # Fallback: return the original path
         return image_path
 
-    def __getitem__(self, idx: int) -> tuple[Image.Image, str]:
+    def __getitem__(self, index: int) -> tuple[Image.Image, str]:
         """Get weather image and caption pair.
 
         Args:
-            idx (`int`): Index of the sample.
+            index (`int`): Index of the sample.
 
         Returns:
             `tuple`: Tuple of (image, caption).
@@ -214,11 +214,11 @@ class HRRRImageCaptionDataset(Dataset):
         Raises:
             IndexError: If index is out of range.
         """
-        if idx >= len(self.records):
-            msg = f"Index {idx} out of range for dataset of size {len(self.records)}"
+        if index >= len(self.records):
+            msg = f"Index {index} out of range for dataset of size {len(self.records)}"
             raise IndexError(msg)
 
-        record = self.records[idx]
+        record = self.records[index]
 
         # Load image using the flexible path resolution
         try:
@@ -243,7 +243,7 @@ class HRRRImageCaptionDataset(Dataset):
         cls,
         repo_id: str,
         processor: SiglipProcessor,
-        cache_dir: PathLike[str] | None = None,
+        cache_dir: str | Path | None = None,
     ) -> "HRRRImageCaptionDataset":
         """Load dataset directly from Hugging Face Hub.
 
@@ -251,7 +251,7 @@ class HRRRImageCaptionDataset(Dataset):
             repo_id (`str`): HF Hub dataset repository ID.
             processor (`SiglipProcessor`): SigLIP processor for text and image
                 tokenisation.
-            cache_dir (`PathLike[str]`, optional): Cache directory for HF Hub
+            cache_dir (`str | Path`, optional): Cache directory for HF Hub
                 downloads.
 
         Returns:
@@ -374,7 +374,7 @@ class HRRRImageCaptionDataset(Dataset):
             `HRRRImageCaptionDataset`: HRRRImageCaptionDataset ready for training.
         """
         if variables is None:
-            variables = DEFAULT_VARIABLES
+            variables = list(DEFAULT_VARIABLES)
 
         if regions is None:
             region_model_pairs = REGION_MODEL_PAIRS

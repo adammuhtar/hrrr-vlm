@@ -87,7 +87,7 @@ class EmbeddingClusterer:
                 n_components=self.n_components,
                 random_state=self.random_state,
                 perplexity=30,
-                n_iter=1000,
+                max_iter=1000,
                 metric="cosine",
                 init="pca",
             )
@@ -458,19 +458,19 @@ class EmbeddingClusterer:
         """
         # Extract weather attributes
         temperatures = [
-            meta.get("avg_temperature")
+            temp
             for meta in cluster_metadata
-            if meta.get("avg_temperature") is not None
+            if (temp := meta.get("avg_temperature")) is not None
         ]
         wind_speeds = [
-            meta.get("wind_speed")
+            wind
             for meta in cluster_metadata
-            if meta.get("wind_speed") is not None
+            if (wind := meta.get("wind_speed")) is not None
         ]
         humidities = [
-            meta.get("humidity")
+            humidity
             for meta in cluster_metadata
-            if meta.get("humidity") is not None
+            if (humidity := meta.get("humidity")) is not None
         ]
 
         regions = [meta.get("region", "Unknown") for meta in cluster_metadata]

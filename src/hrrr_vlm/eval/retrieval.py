@@ -709,8 +709,8 @@ class RetrievalEvaluator:
             all_captions = [item["caption"] for item in test_data]
 
             detailed_results = []
-            region_stats = {}
-            date_stats = {}
+            region_stats: dict[str, dict[str, Any]] = {}
+            date_stats: dict[str, dict[str, Any]] = {}
 
             logger.debug(
                 "Testing individual queries with distractors",

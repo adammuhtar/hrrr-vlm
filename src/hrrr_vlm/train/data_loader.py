@@ -18,7 +18,7 @@ from hrrr_vlm.utils.logger import configure_logger
 logger = configure_logger()
 
 
-class HRRRImageCaptionDataSetup(Dataset):
+class HRRRImageCaptionDataSetup(Dataset[tuple[Image.Image, str]]):
     """Dataset class for NOAA HRRR weather image-caption pairs.
 
     Attributes:
@@ -73,16 +73,16 @@ class HRRRImageCaptionDataSetup(Dataset):
             logger.exception(msg)
             raise DataError(msg) from e
 
-    def _load_data(self, data_path: Path) -> list[dict[str, dict[str, str | None]]]:
+    def _load_data(self, data_path: Path) -> list[dict[str, Any]]:
         """Load image-caption data from the JSONL file.
 
         Args:
             data_path (`Path`): Path to the JSONL file containing weather data.
 
         Returns:
-            `list[dict[str, dict[str, str | None]]]`: List of weather data items,
-                each containing image path, caption, sample ID, variable, model,
-                date, and metadata.
+            `list[dict[str, Any]]`: List of weather data items, each containing
+                image path, caption, sample ID, variable, model, date, and
+                metadata.
 
         Raises:
             DataError: If the data file is invalid or contains missing fields.
@@ -109,9 +109,7 @@ class HRRRImageCaptionDataSetup(Dataset):
         logger.info("Loaded image-caption samples", num_samples=len(data))
         return data
 
-    def _process_data_line(
-        self, line: str, line_num: int
-    ) -> dict[str, dict[str, str | None]] | None:
+    def _process_data_line(self, line: str, line_num: int) -> dict[str, Any] | None:
         """Process a single line from the JSONL data file.
 
         Args:
@@ -119,7 +117,7 @@ class HRRRImageCaptionDataSetup(Dataset):
             line_num (`int`): Line number for logging.
 
         Returns:
-            `dict[str, dict[str, str | None]]`: Processed item or None if invalid.
+            `dict[str, Any]`: Processed item or None if invalid.
         """
         try:
             item = json.loads(line.strip())
@@ -229,11 +227,11 @@ class HRRRImageCaptionDataSetup(Dataset):
         """
         return len(self.data)
 
-    def __getitem__(self, idx: int) -> tuple[Image.Image, str]:
+    def __getitem__(self, index: int | torch.Tensor) -> tuple[Image.Image, str]:
         """Get a single item from the dataset.
 
         Args:
-            idx (`int`): Index of the item to retrieve.
+            index (`int | torch.Tensor`): Index of the item to retrieve.
 
         Returns:
             `tuple[Image.Image, str]`: Tuple containing the weather image and its
@@ -242,13 +240,13 @@ class HRRRImageCaptionDataSetup(Dataset):
         Raises:
             DataError: If the index is out of range or image loading fails.
         """
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
+        if torch.is_tensor(index):
+            index = int(index.item())
 
         try:
-            item = self.data[idx]
+            item = self.data[index]
         except IndexError as e:
-            msg = f"Index {idx} out of range for dataset of size {len(self.data)}"
+            msg = f"Index {index} out of range for dataset of size {len(self.data)}"
             logger.exception(msg)
             raise DataError(msg) from e
 

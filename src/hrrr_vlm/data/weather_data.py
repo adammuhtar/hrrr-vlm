@@ -1,14 +1,12 @@
 """Weather data service for HRRR VLM package."""
 
-from typing import Literal
-
 import matplotlib.pyplot as plt
 import structlog
 import xarray as xr
 from herbie import Herbie, paint
 from herbie.toolbox import EasyMap, pc
 
-from hrrr_vlm.data.config import WeatherVariableConfig
+from hrrr_vlm.data.config import ModelConfig, WeatherVariableConfig
 from hrrr_vlm.data.constants import LONGITUDE_MAX, MODEL_CONFIGS, REGIONS
 from hrrr_vlm.data.exceptions import DataLoadError, WeatherDataError
 from hrrr_vlm.data.models import WeatherStatistics
@@ -44,9 +42,7 @@ class WeatherDataService:
         self.herbie: Herbie | None = None
         self.current_model: str | None = None
 
-    def load_data(
-        self, date_str: str, model: Literal["hrrr", "hrrrak"] = "hrrr", fxx: int = 0
-    ) -> bool:
+    def load_data(self, date_str: str, model: str = "hrrr", fxx: int = 0) -> bool:
         """Load Herbie data for a specific date and configuration.
 
         Args:
@@ -90,6 +86,20 @@ class WeatherDataService:
                 fxx=self.herbie.fxx,
             )
             return True
+
+    def _get_current_model_config(self) -> ModelConfig:
+        """Return the configuration for the currently loaded model.
+
+        Returns:
+            `ModelConfig`: Configuration of the current model.
+
+        Raises:
+            WeatherDataError: If no data is loaded.
+        """
+        if self.current_model is None:
+            msg = "No weather data loaded. Call load_data first."
+            raise WeatherDataError(msg)
+        return MODEL_CONFIGS[self.current_model]
 
     def get_available_variables(self) -> list[str]:
         """List available variables in the current dataset.
@@ -216,9 +226,9 @@ class WeatherDataService:
                 description=self.variable_config.description,
                 valid_time=valid_time,
                 model=ds.model.upper(),
-                forecast_hour=self.herbie.fxx,
+                forecast_hour=int(self.herbie.fxx),
                 grib_name=getattr(data_var, "GRIB_name", "Unknown"),
-                domain=MODEL_CONFIGS[self.current_model].domain,
+                domain=self._get_current_model_config().domain,
                 region=region or "",
             )
 
@@ -268,7 +278,7 @@ class WeatherDataService:
             converted_data = self.variable_config.convert_data(data_var)
 
             # Create map
-            model_config = MODEL_CONFIGS[self.current_model]
+            model_config = self._get_current_model_config()
             em = EasyMap(
                 scale=model_config.map_resolution, crs=ds.herbie.crs, figsize=figsize
             )
@@ -299,7 +309,7 @@ class WeatherDataService:
                 label=(
                     f"{self.variable_config.description} ({self.variable_config.unit})"
                 ),
-                **paint.NWSTemperature.kwargs2,
+                **paint.NWSTemperature.kwargs2,  # ty: ignore[invalid-argument-type]
             )
 
             # Add titles
@@ -382,7 +392,7 @@ class WeatherDataService:
             `str`: Display name for the region.
         """
         if region is None:
-            return MODEL_CONFIGS[self.current_model].default_region
+            return self._get_current_model_config().default_region
 
         if region == "Alaska":
             return "Alaska"

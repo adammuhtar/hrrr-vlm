@@ -132,11 +132,11 @@ class HurricaneDataProcessor:
         expanded_hurricane_df (`pl.DataFrame`): Expanded data with one row per region.
     """
 
-    def __init__(self, hurricane_csv_path: PathLike[str]) -> None:
+    def __init__(self, hurricane_csv_path: str | Path) -> None:
         """Initialise and preprocess hurricane data.
 
         Args:
-            hurricane_csv_path (`PathLike[str]`): Path to the hurricane CSV file.
+            hurricane_csv_path (`str | Path`): Path to the hurricane CSV file.
         """
         self.hurricane_df = pl.read_csv(hurricane_csv_path)
         self.preprocess_hurricane_data()
@@ -256,11 +256,11 @@ class HurricanePredictor:
         scaler (`StandardScaler`): Scaler for feature normalisation.
     """
 
-    def __init__(self, hurricane_csv_path: PathLike[str]) -> None:
+    def __init__(self, hurricane_csv_path: str | Path) -> None:
         """Initialise with hurricane data processor and feature extractor.
 
         Args:
-            hurricane_csv_path (`PathLike[str]`): Path to the hurricane CSV file.
+            hurricane_csv_path (`str | Path`): Path to the hurricane CSV file.
         """
         self.hurricane_processor = HurricaneDataProcessor(hurricane_csv_path)
         self.feature_extractor = WeatherFeatureExtractor()
@@ -535,7 +535,7 @@ class HurricanePredictor:
 
 def run_linear_probe_analysis(
     embedding_data: EmbeddingData,
-    hurricane_csv_path: PathLike[str],
+    hurricane_csv_path: str | Path,
     output_dir: PathLike[str],
     *,
     lookahead_days: int = 3,
@@ -545,7 +545,7 @@ def run_linear_probe_analysis(
 
     Args:
         embedding_data (`EmbeddingData`): Embedding data with metadata.
-        hurricane_csv_path (`PathLike[str]`): Path to the hurricane CSV file.
+        hurricane_csv_path (`str | Path`): Path to the hurricane CSV file.
         output_dir (`PathLike[str]`): Directory to save results.
         lookahead_days (`int`): Days to look ahead for hurricane start.
 

@@ -3,19 +3,15 @@
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, NonNegativeFloat, NonNegativeInt
+from pydantic import BaseModel, Field, NonNegativeFloat, NonNegativeInt
+
+from hrrr_vlm.utils.model_config import DEFAULT_MODEL_CONFIG
 
 
 class WeatherStatistics(BaseModel):
     """Statistical summary of weather data."""
 
-    model_config = ConfigDict(
-        str_strip_whitespace=True,
-        extra="forbid",
-        validate_assignment=True,
-        arbitrary_types_allowed=False,
-        validate_by_name=True,
-    )
+    model_config = DEFAULT_MODEL_CONFIG
     min: float = Field(..., description="Minimum value")
     max: float = Field(..., description="Maximum value")
     mean: float = Field(..., description="Mean value")
@@ -52,13 +48,7 @@ class WeatherStatistics(BaseModel):
 class CaptionMetadata(BaseModel):
     """Metadata for generated captions."""
 
-    model_config = ConfigDict(
-        str_strip_whitespace=True,
-        extra="forbid",
-        validate_assignment=True,
-        arbitrary_types_allowed=False,
-        validate_by_name=True,
-    )
+    model_config = DEFAULT_MODEL_CONFIG
     image_filename: str = Field(..., description="Image filename")
     caption_files: list[str] = Field(..., description="List of caption filenames")
     sample_id: str = Field(..., description="Unique sample identifier")
@@ -78,13 +68,7 @@ class CaptionMetadata(BaseModel):
 class TrainingRecord(BaseModel):
     """Record for image-text training dataset."""
 
-    model_config = ConfigDict(
-        str_strip_whitespace=True,
-        extra="forbid",
-        validate_assignment=True,
-        arbitrary_types_allowed=False,
-        validate_by_name=True,
-    )
+    model_config = DEFAULT_MODEL_CONFIG
     image_path: str = Field(..., description="Path to image file")
     caption: str = Field(..., description="Generated caption")
     sample_id: str = Field(..., description="Unique sample identifier")

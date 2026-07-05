@@ -64,7 +64,7 @@ class WeatherDataGenerator:
         primary_variable: str = "temperature",
         additional_variables: list[str] | None = None,
         models: list[str] | None = None,
-        regions: list[str] | None = None,
+        regions: list[str | None] | None = None,
         fxx: int = 0,
     ) -> dict[str, Any]:
         """Generate image-caption samples for the given dates.
@@ -76,7 +76,8 @@ class WeatherDataGenerator:
             additional_variables (`list[str]`, optional): Additional variables for
                 caption enhancement.
             models (`list[str]`, optional): List of weather models to use.
-            regions (`list[str]`, optional): List of regions to process.
+            regions (`list[str | None]`, optional): List of regions to process. A
+                `None` entry uses the model's default region.
             fxx (`int`, optional): Forecast hour. Default is 0 (current time).
 
         Returns:

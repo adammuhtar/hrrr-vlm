@@ -6,7 +6,7 @@ import random
 import time
 from os import PathLike
 from pathlib import Path
-from typing import Any, NamedTuple
+from typing import TYPE_CHECKING, Any, NamedTuple, cast
 
 import numpy as np
 import pandas as pd
@@ -15,7 +15,6 @@ from peft import LoraConfig, get_peft_model
 from PIL import Image
 from pydantic import (
     BaseModel,
-    ConfigDict,
     Field,
     NonNegativeFloat,
     NonNegativeInt,
@@ -31,6 +30,12 @@ from transformers import SiglipModel, SiglipProcessor
 from hrrr_vlm.train.data_loader import HRRRImageCaptionDataSetup
 from hrrr_vlm.train.exceptions import DataError, ModelInitError, ModelTrainingError
 from hrrr_vlm.utils.logger import configure_logger
+from hrrr_vlm.utils.model_config import DEFAULT_MODEL_CONFIG
+
+if TYPE_CHECKING:
+    from collections.abc import Sized
+
+    from peft import PeftMixedModel, PeftModel
 
 # Configure logging
 logger = configure_logger()
@@ -70,13 +75,7 @@ class ModelTrainingConfig(BaseModel):
         max_length (`PositiveInt`): Maximum length for text tokenisation.
     """
 
-    model_config = ConfigDict(
-        str_strip_whitespace=True,
-        extra="forbid",
-        validate_assignment=True,
-        arbitrary_types_allowed=False,
-        validate_by_name=True,
-    )
+    model_config = DEFAULT_MODEL_CONFIG
     num_epochs: PositiveInt = Field(default=10, description="Number of training epochs")
     learning_rate: PositiveFloat = Field(
         default=5e-5, description="Learning rate for optimiser"
@@ -94,9 +93,7 @@ class ModelTrainingConfig(BaseModel):
     num_workers: NonNegativeInt = Field(
         default=0, description="Number of data loader workers"
     )
-    max_length: PositiveInt = Field(
-        default=1024, gt=0, description="Maximum caption length"
-    )
+    max_length: PositiveInt = Field(default=1024, description="Maximum caption length")
 
 
 class TrainingEpochResults(NamedTuple):
@@ -167,7 +164,7 @@ class HRRRLoRASigLIPTrainer:
             logger.exception(msg)
             raise ModelInitError(msg) from e
 
-        self.model: torch.nn.Module | None = None
+        self.model: PeftModel | PeftMixedModel | None = None
 
         # Learnable logit scale parameter
         self.logit_scale: torch.nn.Parameter | None = None
@@ -183,7 +180,7 @@ class HRRRLoRASigLIPTrainer:
                 "Loading base SigLIP model for weather analysis: %s", self.model_name
             )
             base_model = SiglipModel.from_pretrained(self.model_name)
-            base_model = base_model.to(self.device)
+            base_model = base_model.to(self.device)  # ty: ignore[invalid-argument-type]
 
             logger.info("Applying LoRA configuration", lora_config=self.lora_config)
             config = LoraConfig(**self.lora_config)
@@ -354,11 +351,32 @@ class HRRRLoRASigLIPTrainer:
         else:
             logger.info(
                 "Data loaders created successfully",
-                train_set=len(train_loader.dataset),
-                val_set=len(val_loader.dataset),
-                test_set=len(test_loader.dataset),
+                train_set=len(train_dataset),
+                val_set=len(val_dataset),
+                test_set=len(test_dataset),
             )
             return train_loader, val_loader, test_loader
+
+    def _get_logit_scale(self) -> torch.Tensor:
+        """Return the learnable logit scale parameter.
+
+        Prefers the parameter registered on the model, falling back to the
+        trainer's own reference.
+
+        Returns:
+            `torch.Tensor`: The logit scale tensor.
+
+        Raises:
+            ModelInitError: If no logit scale parameter is available.
+        """
+        logit_scale = getattr(self.model, "logit_scale", None)
+        if not isinstance(logit_scale, torch.Tensor):
+            logit_scale = self.logit_scale
+        if logit_scale is None:
+            msg = "Logit scale not initialised. Call setup_model() first."
+            logger.error(msg)
+            raise ModelInitError(msg)
+        return logit_scale
 
     def _forward_and_similarities(
         self, sample: dict[str, torch.Tensor]
@@ -406,11 +424,7 @@ class HRRRLoRASigLIPTrainer:
         image_embeds = nn.functional.normalize(image_embeds, p=2, dim=-1)
 
         # Learnable logit scale
-        scale = (
-            self.model.logit_scale.exp()
-            if hasattr(self.model, "logit_scale")
-            else self.logit_scale.exp()
-        )
+        scale = self._get_logit_scale().exp()
         logits_per_image = scale * image_embeds @ text_embeds.t()  # (B, B)
         logits_per_text = logits_per_image.t()  # symmetry
 
@@ -534,7 +548,7 @@ class HRRRLoRASigLIPTrainer:
 
             log_data, log_file_path = self._setup_training_logs(log_file)
             since = time.time()
-            train_set_size = len(train_loader.dataset)
+            train_set_size = len(cast("Sized", train_loader.dataset))
 
             # Track best model performance
             best_val_loss = float("inf")
@@ -629,12 +643,12 @@ class HRRRLoRASigLIPTrainer:
 
     @staticmethod
     def _setup_training_logs(
-        log_file: PathLike[str] | None,
+        log_file: str | PathLike[str] | None,
     ) -> tuple[list, Path | None]:
         """Setup training logs for model training.
 
         Args:
-            log_file (`PathLike[str]`, optional): Path to save training logs.
+            log_file (`str | PathLike[str]`, optional): Path to save training logs.
 
         Returns:
             `tuple[list, Path | None]`: Tuple containing log data list and log
@@ -733,11 +747,11 @@ class HRRRLoRASigLIPTrainer:
             df = pd.DataFrame([epoch_data])
             df.to_csv(log_file_path, mode="a", header=(results.epoch == 1), index=False)
 
-    def save_model(self, save_path: PathLike[str]) -> None:
+    def save_model(self, save_path: str | PathLike[str]) -> None:
         """Save the trained SigLIP model with LoRA adapter.
 
         Args:
-            save_path (`PathLike[str]`): Directory path to save the model.
+            save_path (`str | PathLike[str]`): Directory path to save the model.
 
         Raises:
             ModelInitError: If the model is not initialised or saving fails.
@@ -749,7 +763,7 @@ class HRRRLoRASigLIPTrainer:
         try:
             save_path_obj = Path(save_path)
             save_path_obj.mkdir(parents=True, exist_ok=True)
-            self.model.save_pretrained(save_path_obj)
+            self.model.save_pretrained(str(save_path_obj))
             logger.info("Weather SigLIP LoRA adapter saved to: %s", save_path_obj)
         except Exception as e:
             msg = f"Failed to save weather model: {e}"
@@ -773,14 +787,19 @@ class HRRRLoRASigLIPTrainer:
         try:
             if self.model is None:
                 self.setup_model()
+            model = self.model
+            if model is None:
+                msg = "Model initialisation failed"
+                logger.error(msg)
+                raise ModelInitError(msg)  # noqa: TRY301
             model_path_obj = Path(model_path)
             if not model_path_obj.exists():
                 msg = f"Model path does not exist: {model_path}"
                 logger.error(msg)
                 raise ModelInitError(msg)  # noqa: TRY301
-            self.model.load_adapter(model_path, adapter_name=adapter_name)
+            model.load_adapter(str(model_path_obj), adapter_name=adapter_name)
             # Set the newly loaded adapter as the active adapter
-            self.model.set_adapter(adapter_name)
+            model.set_adapter(adapter_name)
             logger.info(
                 "SigLIP LoRA adapter loaded",
                 adapter_name=adapter_name,
@@ -860,18 +879,14 @@ class HRRRLoRASigLIPTrainer:
                     outputs.image_embeds, p=2, dim=-1
                 )
 
-                scale = (
-                    self.model.logit_scale.exp()
-                    if hasattr(self.model, "logit_scale")
-                    else self.logit_scale.exp()
-                )
+                scale = self._get_logit_scale().exp()
                 logits = scale * (image_embeds @ text_embeds.t())  # (1, num_texts)
 
                 # SigLIP independent probabilities per pair
                 probs = torch.sigmoid(logits)
 
             # Top-1 by raw logits (equivalently by probs since sigmoid is monotonic)
-            predicted_idx = torch.argmax(logits, dim=1).item()
+            predicted_idx = int(torch.argmax(logits, dim=1).item())
             confidence = probs[0, predicted_idx].item()
 
             results = {
@@ -885,12 +900,6 @@ class HRRRLoRASigLIPTrainer:
             if return_probs:
                 results["probabilities"] = probs.squeeze(0).cpu().numpy().tolist()
 
-            logger.info(
-                "Weather image test complete",
-                prediction=weather_descriptions[predicted_idx],
-                confidence=results["confidence"],
-            )
-
         except Exception as e:
             if isinstance(e, (ModelInitError, DataError)):
                 raise
@@ -899,4 +908,9 @@ class HRRRLoRASigLIPTrainer:
             raise DataError(msg) from e
 
         else:
+            logger.info(
+                "Weather image test complete",
+                prediction=weather_descriptions[predicted_idx],
+                confidence=results["confidence"],
+            )
             return results

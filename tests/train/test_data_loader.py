@@ -169,7 +169,7 @@ class TestHRRRImageCaptionDataSetupInit:
                 data_file=data_file, images_dir=images_dir, processor=mock_processor
             )
 
-        assert "No valid weather data found" in str(exc_info.value)
+        assert "No valid image-caption data found" in str(exc_info.value)
 
     def test_init_invalid_json(
         self, temp_dirs: tuple[Path, Path], mock_processor: Mock
@@ -184,7 +184,7 @@ class TestHRRRImageCaptionDataSetupInit:
                 data_file=data_file, images_dir=images_dir, processor=mock_processor
             )
 
-        assert "No valid weather data found" in str(exc_info.value)
+        assert "No valid image-caption data found" in str(exc_info.value)
 
 
 class TestDataLoading:

@@ -198,7 +198,7 @@ class CaptionGenerator:
             "autumn": {9: "early", 10: "mid", 11: "late"},
         }
 
-        period = season_month_map.get(season).get(month, "mid")
+        period = season_month_map[season].get(month, "mid")
         return f"{period} {season}"
 
     @staticmethod

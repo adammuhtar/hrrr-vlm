@@ -808,11 +808,9 @@ class TestEmbeddingExtractorEdgeCases:
         dataloader.dataset = dataset
         dataloader.__iter__ = Mock(return_value=iter([]))  # Empty iterator
 
-        # Empty dataloader should raise RuntimeError due to torch.cat on empty list
+        # Empty dataloader should raise ValueError due to torch.cat on empty list
         # This is expected behavior as the current implementation doesn't handle this
-        with pytest.raises(
-            RuntimeError, match=r"torch\.cat.*expected a non-empty list"
-        ):
+        with pytest.raises(ValueError, match=r"torch\.cat.*expected a non-empty list"):
             extractor.extract_embeddings_with_metadata(dataloader)
 
     def test_device_mismatch_handling(self, mock_trainer: Mock) -> None:

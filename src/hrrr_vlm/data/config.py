@@ -1,8 +1,12 @@
 """Configuration models for the HRRR VLM package using Pydantic v2."""
 
+from typing import Literal
+
 import xarray as xr
-from pydantic import BaseModel, ConfigDict, Field, PositiveInt
+from pydantic import BaseModel, Field, PositiveInt
 from pydantic.functional_validators import field_validator
+
+from hrrr_vlm.utils.model_config import DEFAULT_MODEL_CONFIG
 
 # Constants for validation
 LATITUDE_MIN = -90
@@ -27,13 +31,7 @@ class WeatherVariableConfig(BaseModel):
             to the data.
     """
 
-    model_config = ConfigDict(
-        str_strip_whitespace=True,
-        extra="forbid",
-        validate_assignment=True,
-        arbitrary_types_allowed=False,
-        validate_by_name=True,
-    )
+    model_config = DEFAULT_MODEL_CONFIG
     variable: str = Field(default=..., description="Variable identifier")
     search_string: str = Field(default=..., description="GRIB search string")
     unit: str = Field(default=..., description="Unit of measurement")
@@ -72,13 +70,7 @@ class RegionConfig(BaseModel):
         description (`str`): Optional description of the region.
     """
 
-    model_config = ConfigDict(
-        str_strip_whitespace=True,
-        extra="forbid",
-        validate_assignment=True,
-        arbitrary_types_allowed=False,
-        validate_by_name=True,
-    )
+    model_config = DEFAULT_MODEL_CONFIG
     name: str = Field(..., description="Region name")
     bounds: list[float] = Field(
         ..., description="Region bounds as [lon_min, lon_max, lat_min, lat_max]"
@@ -139,43 +131,19 @@ class ModelConfig(BaseModel):
         domain (`str`): Domain of the model.
         default_region (`str`): Default region name for the model.
         available_regions (`list[str]`): List of available region names.
-        map_resolution (`str`): Map resolution for the model, e.g., "10m", "50m",
-            "110m".
+        map_resolution (`Literal["110m", "50m", "10m"]`): Map resolution for the
+            model.
     """
 
-    model_config = ConfigDict(
-        str_strip_whitespace=True,
-        extra="forbid",
-        validate_assignment=True,
-        arbitrary_types_allowed=False,
-        validate_by_name=True,
-    )
+    model_config = DEFAULT_MODEL_CONFIG
     name: str = Field(..., description="Model name")
     product: str = Field(..., description="Model product")
     domain: str = Field(..., description="Model domain")
     default_region: str = Field(..., description="Default region name")
     available_regions: list[str] = Field(..., description="Available region names")
-    map_resolution: str = Field(default="10m", description="Map resolution")
-
-    @field_validator("map_resolution", mode="after")
-    @classmethod
-    def validate_resolution(cls, v: str) -> str:
-        """Validate map resolution.
-
-        Args:
-            v (`str`): Map resolution string.
-
-        Returns:
-            `str`: Validated resolution string.
-
-        Raises:
-            ValueError: If the resolution is not one of the valid options.
-        """
-        valid_resolutions = {"10m", "50m", "110m"}
-        if v not in valid_resolutions:
-            msg = f"Map resolution must be one of {valid_resolutions}"
-            raise ValueError(msg)
-        return v
+    map_resolution: Literal["110m", "50m", "10m"] = Field(
+        default="10m", description="Map resolution"
+    )
 
 
 class DataGeneratorConfig(BaseModel):
@@ -191,13 +159,7 @@ class DataGeneratorConfig(BaseModel):
         default_figsize (`tuple[int, int]`): Default figure size for plots.
     """
 
-    model_config = ConfigDict(
-        str_strip_whitespace=True,
-        extra="forbid",
-        validate_assignment=True,
-        arbitrary_types_allowed=False,
-        validate_by_name=True,
-    )
+    model_config = DEFAULT_MODEL_CONFIG
     output_dir: str = Field(..., description="Output directory path")
     cache_dir: str = Field(default="threshold_cache", description="Cache directory")
     enable_json_logging: bool = Field(default=False, description="Enable JSON logging")

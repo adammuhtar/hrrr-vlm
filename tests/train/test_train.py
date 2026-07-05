@@ -892,7 +892,7 @@ class TestHRRRLoRASigLIPTrainerSaveLoad:
 
             trainer.save_model(save_path)
 
-            mock_model.save_pretrained.assert_called_once_with(save_path)
+            mock_model.save_pretrained.assert_called_once_with(str(save_path))
 
     def test_save_exception(self, trainer: HRRRLoRASigLIPTrainer) -> None:
         """Test saving when exception occurs."""
@@ -930,7 +930,7 @@ class TestHRRRLoRASigLIPTrainerSaveLoad:
         with pytest.raises(ModelInitError) as exc_info:
             trainer.load_model("/nonexistent/path")
 
-        assert "Weather model path does not exist" in str(exc_info.value)
+        assert "Model path does not exist" in str(exc_info.value)
 
     def test_load_success(self, trainer: HRRRLoRASigLIPTrainer) -> None:
         """Test successful model loading."""
@@ -946,7 +946,7 @@ class TestHRRRLoRASigLIPTrainerSaveLoad:
             trainer.load_model(model_path, "custom_adapter")
 
             mock_model.load_adapter.assert_called_once_with(
-                model_path, adapter_name="custom_adapter"
+                str(model_path), adapter_name="custom_adapter"
             )
             mock_model.set_adapter.assert_called_once_with("custom_adapter")
 

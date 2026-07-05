@@ -3,7 +3,7 @@
 import json
 from os import PathLike
 from pathlib import Path
-from typing import Any, Literal, NamedTuple
+from typing import Any, Literal, NamedTuple, cast
 
 import numpy as np
 import torch
@@ -88,9 +88,9 @@ class EmbeddingExtractor:
             if isinstance(dataset, Subset):
                 # Get the actual index in the original dataset
                 original_idx = dataset.indices[data_idx]
-                return dataset.dataset.data[original_idx]
+                return cast("Any", dataset.dataset).data[original_idx]
             # Regular dataset
-            return dataset.data[data_idx]
+            return cast("Any", dataset).data[data_idx]
         except (IndexError, AttributeError):
             logger.warning("Could not access dataset item at index %d", data_idx)
             return None
@@ -111,10 +111,18 @@ class EmbeddingExtractor:
 
         Returns:
             `EmbeddingData`: Container for embeddings and metadata.
+
+        Raises:
+            ValueError: If the trainer model is not initialised or the data
+                loader has no fixed batch size.
         """
         logger.info("Extracting embeddings with metadata preservation")
 
-        self.trainer.model.eval()
+        model = self.trainer.model
+        if model is None:
+            msg = "Trainer model is not initialized"
+            raise ValueError(msg)
+        model.eval()
         image_embeddings = []
         text_embeddings = []
         captions = []
@@ -140,7 +148,7 @@ class EmbeddingExtractor:
                 ).to(self.device)
 
                 # Forward pass through model
-                outputs = self.trainer.model(
+                outputs = model(
                     input_ids=input_ids,
                     attention_mask=attention_mask,
                     pixel_values=pixel_values,
@@ -165,7 +173,11 @@ class EmbeddingExtractor:
 
                 # Extract metadata from dataset
                 # Handle both Subset and regular datasets
-                start_idx = batch_idx * dataloader.batch_size
+                batch_size = dataloader.batch_size
+                if batch_size is None:
+                    msg = "DataLoader must have a fixed batch size"
+                    raise ValueError(msg)
+                start_idx = batch_idx * batch_size
 
                 for i in range(len(batch_captions)):
                     data_idx = start_idx + i
