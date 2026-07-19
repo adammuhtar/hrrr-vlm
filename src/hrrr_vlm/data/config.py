@@ -71,7 +71,7 @@ class RegionConfig(BaseModel):
     """
 
     model_config: ClassVar[ConfigDict] = DEFAULT_MODEL_CONFIG
-    name: str = Field(..., description="Region name")
+    name: str = Field(default=..., description="Region name")
     bounds: list[float] = Field(
         ..., description="Region bounds as [lon_min, lon_max, lat_min, lat_max]"
     )
@@ -136,11 +136,13 @@ class ModelConfig(BaseModel):
     """
 
     model_config: ClassVar[ConfigDict] = DEFAULT_MODEL_CONFIG
-    name: str = Field(..., description="Model name")
-    product: str = Field(..., description="Model product")
-    domain: str = Field(..., description="Model domain")
-    default_region: str = Field(..., description="Default region name")
-    available_regions: list[str] = Field(..., description="Available region names")
+    name: str = Field(default=..., description="Model name")
+    product: str = Field(default=..., description="Model product")
+    domain: str = Field(default=..., description="Model domain")
+    default_region: str = Field(default=..., description="Default region name")
+    available_regions: list[str] = Field(
+        default=..., description="Available region names"
+    )
     map_resolution: Literal["110m", "50m", "10m"] = Field(
         default="10m", description="Map resolution"
     )
@@ -160,7 +162,7 @@ class DataGeneratorConfig(BaseModel):
     """
 
     model_config: ClassVar[ConfigDict] = DEFAULT_MODEL_CONFIG
-    output_dir: str = Field(..., description="Output directory path")
+    output_dir: str = Field(default=..., description="Output directory path")
     cache_dir: str = Field(default="threshold_cache", description="Cache directory")
     enable_json_logging: bool = Field(default=False, description="Enable JSON logging")
     log_level: str = Field(default="INFO", description="Logging level")
