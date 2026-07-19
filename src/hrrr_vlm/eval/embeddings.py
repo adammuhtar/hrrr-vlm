@@ -14,10 +14,9 @@ from tqdm import tqdm
 
 from hrrr_vlm.eval.retrieval import WeatherReport
 from hrrr_vlm.train.train import HRRRLoRASigLIPTrainer
-from hrrr_vlm.utils.logger import configure_logger
+from hrrr_vlm.utils.logger import get_logger
 
-# Configure logging
-logger = configure_logger()
+logger = get_logger(__name__)
 
 
 class EmbeddingData(NamedTuple):
@@ -92,7 +91,7 @@ class EmbeddingExtractor:
             # Regular dataset
             return cast("Any", dataset).data[data_idx]
         except (IndexError, AttributeError):
-            logger.warning("Could not access dataset item at index %d", data_idx)
+            logger.warning("Could not access dataset item", data_idx=data_idx)
             return None
 
     def extract_embeddings_with_metadata(

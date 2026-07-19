@@ -11,7 +11,7 @@ from hrrr_vlm.data.config import DataGeneratorConfig
 from hrrr_vlm.data.constants import WEATHER_VARIABLES
 from hrrr_vlm.data.models import CaptionMetadata, TrainingRecord
 from hrrr_vlm.data.weather_data import WeatherDataService
-from hrrr_vlm.utils.logger import configure_logger
+from hrrr_vlm.utils.logger import get_logger
 
 
 class WeatherDataGenerator:
@@ -22,7 +22,7 @@ class WeatherDataGenerator:
         output_dir (`Path`): Directory where generated data will be saved.
         images_dir (`Path`): Directory for saving generated images.
         captions_dir (`Path`): Directory for saving generated captions.
-        logger (`Logger`): Logger instance for logging events.
+        logger (`LoggerProtocol`): Logger instance for logging events.
         caption_generator (`CaptionGenerator`): Service for generating captions.
         metadata (`list[CaptionMetadata]`): List to store metadata for generated
             samples.
@@ -35,9 +35,7 @@ class WeatherDataGenerator:
             config (`DataGeneratorConfig`): Configuration for the data generator.
         """
         self.config = config
-        self.logger = configure_logger(
-            enable_json=config.enable_json_logging, log_level=config.log_level
-        )
+        self.logger = get_logger(__name__)
         self.caption_generator = CaptionGenerator(self.logger)
 
         # Create directories

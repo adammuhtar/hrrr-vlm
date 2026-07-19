@@ -15,10 +15,9 @@ from sklearn.metrics import calinski_harabasz_score, silhouette_score
 from sklearn.preprocessing import StandardScaler
 
 from hrrr_vlm.eval.embeddings import EmbeddingData
-from hrrr_vlm.utils.logger import configure_logger
+from hrrr_vlm.utils.logger import get_logger
 
-# Configure logging
-logger = configure_logger()
+logger = get_logger(__name__)
 
 
 class ClusteringResults(NamedTuple):
@@ -294,7 +293,7 @@ class EmbeddingClusterer:
         if method == "kmeans":
             # Elbow method using second derivative
             inertias = np.array(results["inertias"])
-            if len(inertias) >= 3:  # noqa: PLR2004
+            if len(inertias) >= 3:  # ruff:ignore[magic-value-comparison]
                 second_deriv = np.diff(inertias, 2)
                 elbow_idx = np.argmax(second_deriv) + 1  # +1 for diff offset
                 results["optimal_k"]["elbow"] = k_min + elbow_idx
@@ -416,9 +415,7 @@ class EmbeddingClusterer:
             ch_score = 0.0
 
         # Perform dimensionality reduction for visualization
-        logger.info(
-            "Performing dimensionality reduction using %s", self.reduction_method
-        )
+        logger.info("Performing dimensionality reduction", method=self.reduction_method)
         reduced_embeddings = self.reducer.fit_transform(embeddings)
 
         # Analyze metadata patterns

@@ -24,10 +24,9 @@ from hrrr_vlm.data.constants import REGIONS
 from hrrr_vlm.eval.exceptions import RetrievalEvaluationError
 from hrrr_vlm.train.exceptions import ModelInitError
 from hrrr_vlm.train.train import HRRRLoRASigLIPTrainer
-from hrrr_vlm.utils.logger import configure_logger
+from hrrr_vlm.utils.logger import get_logger
 
-# Configure logging
-logger = configure_logger()
+logger = get_logger(__name__)
 
 
 class RetrievalResults(NamedTuple):
@@ -631,7 +630,11 @@ class RetrievalEvaluator:
         with path_obj.open(encoding="utf-8") as f:
             data.extend(json.loads(line.strip()) for line in f)
 
-        logger.info("Loaded %d samples from %s", len(data), jsonl_path)
+        logger.info(
+            "Loaded samples from JSONL file",
+            num_samples=len(data),
+            path=str(jsonl_path),
+        )
         return data
 
     @staticmethod

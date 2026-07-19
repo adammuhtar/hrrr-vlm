@@ -24,10 +24,9 @@ from hrrr_vlm.train.train import (
     ModelTrainingConfig,
     training_init,
 )
-from hrrr_vlm.utils.logger import configure_logger
+from hrrr_vlm.utils.logger import configure_logging, get_logger
 
-# Configure logger
-logger = configure_logger()
+logger = get_logger(__name__)
 
 # Globals and defaults
 DEFAULT_MODEL_NAME = "google/siglip-base-patch16-224"
@@ -99,16 +98,18 @@ def main(
     Returns:
         `int`: Exit code. 0 for success, non-zero for errors.
     """
+    configure_logging()
+
     # Validate input files exist
     data_path = Path(data_file)
     images_path = Path(images_dir)
 
     if not data_path.exists():
-        logger.error("Data file does not exist: %s", data_file)
+        logger.error("Data file does not exist", data_file=data_file)
         return 1
 
     if not images_path.exists():
-        logger.error("Images directory does not exist: %s", images_dir)
+        logger.error("Images directory does not exist", images_dir=images_dir)
         return 2
 
     # Ensure output directories exist

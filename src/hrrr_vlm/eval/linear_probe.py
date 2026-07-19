@@ -23,10 +23,9 @@ from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.preprocessing import StandardScaler
 
 from hrrr_vlm.eval.embeddings import EmbeddingData
-from hrrr_vlm.utils.logger import configure_logger
+from hrrr_vlm.utils.logger import get_logger
 
-# Configure logger
-logger = configure_logger()
+logger = get_logger(__name__)
 
 PREDICTION_THRESHOLD = 0.5
 
@@ -196,7 +195,12 @@ class HurricaneDataProcessor:
                 ):
                     return True, h["Hurricane"]
         except (ValueError, KeyError) as e:
-            logger.warning("Error processing date %s, region %s: %s", date, region, e)
+            logger.warning(
+                "Error processing hurricane period check",
+                date=date,
+                region=region,
+                error=str(e),
+            )
         return False, None
 
 
@@ -291,7 +295,9 @@ class HurricanePredictor:
         feature_names: list[str] = []
         sample_info: list[str] = []
 
-        logger.info("Preparing dataset for %d samples", len(embedding_data.metadata))
+        logger.info(
+            "Preparing prediction dataset", num_samples=len(embedding_data.metadata)
+        )
 
         for i, metadata in enumerate(embedding_data.metadata):
             row_feats: list[float] = []
@@ -325,15 +331,15 @@ class HurricanePredictor:
             labels.append(1 if is_hurr else 0)
             sample_info.append(f"{date}_{region}_{name or 'no_hurricane'}")
 
-        X = np.array(features_list)  # noqa: N806
+        X = np.array(features_list)  # ruff:ignore[non-lowercase-variable-in-function]
         y = np.array(labels)
 
         logger.info(
-            "Prepared: %d samples, %d features, positives=%d (%.2f%%)",
-            len(X),
-            X.shape[1] if len(X) > 0 else 0,
-            y.sum(),
-            (y.mean() * 100) if len(y) else 0,
+            "Prepared prediction dataset",
+            num_samples=len(X),
+            num_features=X.shape[1] if len(X) > 0 else 0,
+            num_positives=int(y.sum()),
+            positive_pct=(y.mean() * 100) if len(y) else 0,
         )
         return X, y, feature_names, sample_info
 
@@ -371,7 +377,7 @@ class HurricanePredictor:
             logger.error(err_msg)
             raise ValueError(err_msg)
 
-        X_train, X_test, y_train, y_test = train_test_split(  # noqa: N806
+        X_train, X_test, y_train, y_test = train_test_split(  # ruff:ignore[non-lowercase-variable-in-function]
             features,
             labels,
             test_size=test_size,
@@ -379,8 +385,8 @@ class HurricanePredictor:
             stratify=labels if len(set(labels)) > 1 else None,
         )
 
-        X_train_s = self.scaler.fit_transform(X_train)  # noqa: N806
-        X_test_s = self.scaler.transform(X_test)  # noqa: N806
+        X_train_s = self.scaler.fit_transform(X_train)  # ruff:ignore[non-lowercase-variable-in-function]
+        X_test_s = self.scaler.transform(X_test)  # ruff:ignore[non-lowercase-variable-in-function]
 
         model = LogisticRegression(
             random_state=random_state,
@@ -495,7 +501,7 @@ class HurricanePredictor:
         # Save ROC curve data
         HurricanePredictor.save_roc_curve_data(results, save_path)
 
-        logger.info("Results saved to %s", save_path)
+        logger.info("Results saved", save_path=str(save_path))
 
     @staticmethod
     def save_roc_curve_data(
@@ -527,10 +533,10 @@ class HurricanePredictor:
             # Save ROC curve data
             roc_path = save_path.with_suffix(".roc_curve.csv")
             roc_df.write_csv(roc_path)
-            logger.info("ROC curve data saved to %s", roc_path)
+            logger.info("ROC curve data saved", roc_path=str(roc_path))
 
         except ValueError as e:
-            logger.warning("Could not save ROC curve data: %s", e)
+            logger.warning("Could not save ROC curve data", error=str(e))
 
 
 def run_linear_probe_analysis(
@@ -570,7 +576,7 @@ def run_linear_probe_analysis(
     all_results = {}
 
     for combo_name, use_embeddings, use_weather in feature_combinations:
-        logger.info("Running linear probe: %s", combo_name)
+        logger.info("Running linear probe", combo_name=combo_name)
 
         # Prepare dataset with only image embeddings
         features, labels, feature_names, sample_info = (
@@ -583,7 +589,7 @@ def run_linear_probe_analysis(
         )
 
         if len(features) == 0:
-            logger.warning("No features for %s, skipping", combo_name)
+            logger.warning("No features prepared, skipping", combo_name=combo_name)
             continue
 
         # Train with standard linear probe config

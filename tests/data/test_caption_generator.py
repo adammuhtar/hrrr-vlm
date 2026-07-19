@@ -290,7 +290,7 @@ class TestWindDescriptions:
     """Test suite for wind description functionality."""
 
     @staticmethod
-    def create_wind_stats(mean: float, max: float) -> WeatherStatistics:  # noqa: A002
+    def create_wind_stats(mean: float, max: float) -> WeatherStatistics:  # ruff:ignore[builtin-argument-shadowing]
         """Helper method to create wind statistics.
 
         Args:
@@ -369,7 +369,7 @@ class TestPrecipitationDescriptions:
     """Test suite for precipitation description functionality."""
 
     @staticmethod
-    def create_precipitation_stats(mean: float, max: float) -> WeatherStatistics:  # noqa: A002
+    def create_precipitation_stats(mean: float, max: float) -> WeatherStatistics:  # ruff:ignore[builtin-argument-shadowing]
         """Helper method to create precipitation statistics.
 
         Args:

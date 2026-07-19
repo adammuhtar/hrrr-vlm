@@ -1,7 +1,6 @@
 """Weather data service for HRRR VLM package."""
 
 import matplotlib.pyplot as plt
-import structlog
 import xarray as xr
 from herbie import Herbie, paint
 from herbie.toolbox import EasyMap, pc
@@ -10,7 +9,7 @@ from hrrr_vlm.data.config import ModelConfig, WeatherVariableConfig
 from hrrr_vlm.data.constants import LONGITUDE_MAX, MODEL_CONFIGS, REGIONS
 from hrrr_vlm.data.exceptions import DataLoadError, WeatherDataError
 from hrrr_vlm.data.models import WeatherStatistics
-from hrrr_vlm.utils.logger import configure_logger
+from hrrr_vlm.utils.logger import LoggerProtocol, get_logger
 
 
 class WeatherDataService:
@@ -19,7 +18,7 @@ class WeatherDataService:
     Attributes:
         variable_config (`WeatherVariableConfig`): Configuration for the weather
             variable.
-        logger (`structlog.BoundLogger`): Logger instance for structured logging.
+        logger (`LoggerProtocol`): Logger instance for structured logging.
         herbie (`Herbie`): Herbie instance for weather data access.
         current_model (`str`): Currently loaded weather model.
     """
@@ -27,18 +26,18 @@ class WeatherDataService:
     def __init__(
         self,
         variable_config: WeatherVariableConfig,
-        logger: structlog.BoundLogger | None = None,
+        logger: LoggerProtocol | None = None,
     ) -> None:
         """Initialise the weather data service.
 
         Args:
             variable_config (`WeatherVariableConfig`): Configuration for the
                 weather variable.
-            logger (`structlog.BoundLogger`, optional): Logger instance for
+            logger (`LoggerProtocol`, optional): Logger instance for
                 structured logging. If not provided, a default logger is configured.
         """
         self.variable_config = variable_config
-        self.logger = logger or configure_logger(enable_json=False, log_level="INFO")
+        self.logger = logger if logger is not None else get_logger(__name__)
         self.herbie: Herbie | None = None
         self.current_model: str | None = None
 
@@ -155,7 +154,7 @@ class WeatherDataService:
             data_vars = list(ds.data_vars)
             if not data_vars:
                 msg = "No data variables found in dataset"
-                raise WeatherDataError(msg)  # noqa: TRY301
+                raise WeatherDataError(msg)  # ruff:ignore[raise-within-try]
 
             data_var = ds[data_vars[0]]
             converted_data = self.variable_config.convert_data(data_var)

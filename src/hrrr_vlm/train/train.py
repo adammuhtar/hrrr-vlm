@@ -30,7 +30,7 @@ from transformers import SiglipModel, SiglipProcessor
 
 from hrrr_vlm.train.data_loader import HRRRImageCaptionDataSetup
 from hrrr_vlm.train.exceptions import DataError, ModelInitError, ModelTrainingError
-from hrrr_vlm.utils.logger import configure_logger
+from hrrr_vlm.utils.logger import get_logger
 from hrrr_vlm.utils.model_config import DEFAULT_MODEL_CONFIG
 
 if TYPE_CHECKING:
@@ -38,8 +38,7 @@ if TYPE_CHECKING:
 
     from peft import PeftMixedModel, PeftModel
 
-# Configure logging
-logger = configure_logger()
+logger = get_logger(__name__)
 
 
 def training_init(random_seed: int = 42) -> None:
@@ -178,7 +177,8 @@ class HRRRLoRASigLIPTrainer:
         """
         try:
             logger.info(
-                "Loading base SigLIP model for weather analysis: %s", self.model_name
+                "Loading base SigLIP model for weather analysis",
+                model_name=self.model_name,
             )
             base_model = SiglipModel.from_pretrained(self.model_name)
             base_model = base_model.to(self.device)  # ty: ignore[invalid-argument-type]
@@ -286,7 +286,7 @@ class HRRRLoRASigLIPTrainer:
         if config is None:
             config = ModelTrainingConfig()
 
-        logger.info("Creating weather data loaders with config: %s", config)
+        logger.info("Creating weather data loaders", config=config)
 
         try:
             full_dataset = HRRRImageCaptionDataSetup(
@@ -297,7 +297,7 @@ class HRRRLoRASigLIPTrainer:
             )
 
             stats = full_dataset.get_weather_statistics()
-            logger.info("Weather dataset statistics: %s", stats)
+            logger.info("Weather dataset statistics", stats=stats)
 
             total_size = len(full_dataset)
             train_size = int(total_size * config.train_split)
@@ -462,7 +462,7 @@ class HRRRLoRASigLIPTrainer:
                     logits_per_image, logits_per_text = self._forward_and_similarities(
                         sample
                     )
-                    B = logits_per_image.size(0)  # noqa: N806
+                    B = logits_per_image.size(0)  # ruff:ignore[non-lowercase-variable-in-function]
                     targets = torch.eye(
                         B, device=self.device, dtype=logits_per_image.dtype
                     )
@@ -533,9 +533,9 @@ class HRRRLoRASigLIPTrainer:
         if config is None:
             config = ModelTrainingConfig()
 
-        logger.info("Starting weather SigLIP training with config: %s", config)
+        logger.info("Starting weather SigLIP training", config=config)
 
-        try:  # noqa: PLR1702
+        try:  # ruff:ignore[too-many-nested-blocks]
             optimiser = optim.AdamW(
                 self.model.parameters(),
                 lr=config.learning_rate,
@@ -604,10 +604,7 @@ class HRRRLoRASigLIPTrainer:
                         if save_path:
                             self.save_model(save_path)
                             logger.info(
-                                "New best model saved at epoch %d with "
-                                "validation loss: %.4f",
-                                epoch,
-                                val_loss,
+                                "New best model saved", epoch=epoch, val_loss=val_loss
                             )
 
                     pbar.set_description(
@@ -618,16 +615,16 @@ class HRRRLoRASigLIPTrainer:
                     )
 
                 except Exception:
-                    logger.exception("Error in weather training epoch %d", epoch)
+                    logger.exception("Error in weather training epoch", epoch=epoch)
                     if epoch == 1:
                         raise
                     continue
 
             training_time = time.time() - since
             logger.info(
-                "Weather SigLIP training complete in %.0fm %.0fs",
-                training_time // 60,
-                training_time % 60,
+                "Weather SigLIP training complete",
+                minutes=training_time // 60,
+                seconds=training_time % 60,
             )
             logger.info(
                 "Best model checkpoint",
@@ -660,7 +657,9 @@ class HRRRLoRASigLIPTrainer:
         if log_file:
             log_file_path = Path(log_file)
             log_file_path.parent.mkdir(parents=True, exist_ok=True)
-            logger.info("Model training logs will be saved to: %s", log_file_path)
+            logger.info(
+                "Model training logs will be saved", log_file_path=log_file_path
+            )
         return log_data, log_file_path
 
     def _process_weather_batch(
@@ -765,7 +764,7 @@ class HRRRLoRASigLIPTrainer:
             save_path_obj = Path(save_path)
             save_path_obj.mkdir(parents=True, exist_ok=True)
             self.model.save_pretrained(str(save_path_obj))
-            logger.info("Weather SigLIP LoRA adapter saved to: %s", save_path_obj)
+            logger.info("Weather SigLIP LoRA adapter saved", save_path=save_path_obj)
         except Exception as e:
             msg = f"Failed to save weather model: {e}"
             logger.exception(msg)
@@ -792,12 +791,12 @@ class HRRRLoRASigLIPTrainer:
             if model is None:
                 msg = "Model initialisation failed"
                 logger.error(msg)
-                raise ModelInitError(msg)  # noqa: TRY301
+                raise ModelInitError(msg)  # ruff:ignore[raise-within-try]
             model_path_obj = Path(model_path)
             if not model_path_obj.exists():
                 msg = f"Model path does not exist: {model_path}"
                 logger.error(msg)
-                raise ModelInitError(msg)  # noqa: TRY301
+                raise ModelInitError(msg)  # ruff:ignore[raise-within-try]
             model.load_adapter(str(model_path_obj), adapter_name=adapter_name)
             # Set the newly loaded adapter as the active adapter
             model.set_adapter(adapter_name)
@@ -854,7 +853,7 @@ class HRRRLoRASigLIPTrainer:
             if not image_path_obj.exists():
                 msg = f"Image does not exist: {image_path}"
                 logger.error(msg)
-                raise DataError(msg)  # noqa: TRY301
+                raise DataError(msg)  # ruff:ignore[raise-within-try]
 
             image = Image.open(image_path_obj)
             if image.mode != "RGB":

@@ -15,10 +15,9 @@ from transformers import SiglipProcessor
 from hrrr_vlm.data.config import DataGeneratorConfig
 from hrrr_vlm.data.generator import WeatherDataGenerator
 from hrrr_vlm.data.models import TrainingRecord
-from hrrr_vlm.utils.logger import configure_logger
+from hrrr_vlm.utils.logger import get_logger
 
-# Configure logger
-logger = configure_logger()
+logger = get_logger(__name__)
 
 # Fixed region-NOAA HRRR model combinations
 REGION_MODEL_PAIRS: Sequence[tuple[str, str]] = [
@@ -145,15 +144,17 @@ class HRRRImageCaptionDataset(Dataset[tuple[Image.Image, str]]):
                         records.append(record)
                     else:
                         logger.warning(
-                            "Image not found for record %s: %s",
-                            record.sample_id,
-                            record.image_path,
+                            "Image not found for record",
+                            sample_id=record.sample_id,
+                            image_path=record.image_path,
                         )
 
                 except json.JSONDecodeError as e:
-                    logger.warning("Invalid JSON on line %d: %s", line_num, e)
+                    logger.warning("Invalid JSON line", line_num=line_num, error=str(e))
                 except Exception as e:
-                    logger.warning("Error processing line %d: %s", line_num, e)
+                    logger.warning(
+                        "Error processing line", line_num=line_num, error=str(e)
+                    )
 
         return records
 
@@ -227,7 +228,9 @@ class HRRRImageCaptionDataset(Dataset[tuple[Image.Image, str]]):
             if image.mode != "RGB":
                 image = image.convert("RGB")
         except Exception as e:
-            logger.warning("Failed to load image %s: %s", record.image_path, e)
+            logger.warning(
+                "Failed to load image", image_path=record.image_path, error=str(e)
+            )
             # Create blank image as fallback
             image = Image.new("RGB", (512, 512), color="lightgray")
 
@@ -308,9 +311,7 @@ class HRRRImageCaptionDataset(Dataset[tuple[Image.Image, str]]):
         new_dataset.records = filtered_records
 
         logger.info(
-            "Filtered dataset: %d samples for variable '%s'",
-            len(filtered_records),
-            variable,
+            "Filtered dataset", num_samples=len(filtered_records), variable=variable
         )
         return new_dataset
 

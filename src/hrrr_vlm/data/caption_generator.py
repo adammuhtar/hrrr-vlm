@@ -1,9 +1,7 @@
 """Streamlined multi-variable caption generation for HRRR VLM package."""
 
-import structlog
-
 from hrrr_vlm.data.models import WeatherStatistics
-from hrrr_vlm.utils.logger import configure_logger
+from hrrr_vlm.utils.logger import LoggerProtocol, get_logger
 
 # Temperature thresholds
 COLD_THRESHOLD = 10
@@ -40,17 +38,17 @@ class CaptionGenerator:
     """Multi-variable weather caption generator.
 
     Attributes:
-        logger (structlog.BoundLogger): Logger instance for structured logging.
+        logger (LoggerProtocol): Logger instance for structured logging.
     """
 
-    def __init__(self, logger: structlog.BoundLogger | None = None) -> None:
+    def __init__(self, logger: LoggerProtocol | None = None) -> None:
         """Initialise the caption generator.
 
         Args:
-            logger (`structlog.BoundLogger`, optional): Logger instance for
+            logger (`LoggerProtocol`, optional): Logger instance for
                 structured logging. If not provided, a default logger is configured.
         """
-        self.logger = logger or configure_logger(enable_json=False, log_level="INFO")
+        self.logger = logger if logger is not None else get_logger(__name__)
 
     def generate_caption(
         self,

@@ -137,23 +137,21 @@ class TestWeatherDataServiceInit:
         assert service.herbie is None
         assert service.current_model is None
 
-    @patch("hrrr_vlm.data.weather_data.configure_logger")
+    @patch("hrrr_vlm.data.weather_data.get_logger")
     def test_init_without_logger(
-        self, mock_configure_logger: Any, temp_variable_config: Any
+        self, mock_get_logger: Any, temp_variable_config: Any
     ) -> None:
         """Test initialisation without provided logger."""
         mock_logger = Mock()
-        mock_configure_logger.return_value = mock_logger
+        mock_get_logger.return_value = mock_logger
 
         service = WeatherDataService(temp_variable_config)
 
         assert service.variable_config == temp_variable_config
-        assert service.logger == mock_logger
+        assert service.logger is mock_logger
         assert service.herbie is None
         assert service.current_model is None
-        mock_configure_logger.assert_called_once_with(
-            enable_json=False, log_level="INFO"
-        )
+        mock_get_logger.assert_called_once_with("hrrr_vlm.data.weather_data")
 
 
 class TestWeatherDataServiceLoadData:
@@ -366,7 +364,7 @@ class TestWeatherDataServiceGenerateMap:
     @patch.object(WeatherDataService, "calculate_statistics")
     def test_generate_map_exception(
         self,
-        mock_calc_stats: Any,  # noqa: ARG002
+        mock_calc_stats: Any,  # ruff:ignore[unused-method-argument]
         weather_service: WeatherDataService,
         mock_herbie: Mock,
     ) -> None:

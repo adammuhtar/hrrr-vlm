@@ -14,10 +14,9 @@ from scipy.spatial.distance import pdist
 from scipy.stats import pearsonr
 
 from hrrr_vlm.eval.embeddings import EmbeddingData
-from hrrr_vlm.utils.logger import configure_logger
+from hrrr_vlm.utils.logger import get_logger
 
-# Configure logging
-logger = configure_logger()
+logger = get_logger(__name__)
 
 
 class DendrogramGenerator:
@@ -105,7 +104,7 @@ class DendrogramGenerator:
 
         if save_path:
             plt.savefig(save_path, dpi=self.dpi, bbox_inches="tight")
-            logger.info("Saved regional dendrogram to %s", save_path)
+            logger.info("Saved regional dendrogram", save_path=str(save_path))
 
         plt.show()
 
@@ -191,7 +190,7 @@ class DendrogramGenerator:
 
         if save_path:
             plt.savefig(save_path, dpi=self.dpi, bbox_inches="tight")
-            logger.info("Saved seasonal dendrogram to %s", save_path)
+            logger.info("Saved seasonal dendrogram", save_path=str(save_path))
 
         plt.show()
 
@@ -252,7 +251,7 @@ class DendrogramGenerator:
             `list[str]`: List of seasons corresponding to each embedding.
         """
         seasons = []
-        for i, meta in enumerate(embedding_data.metadata):  # noqa: PLR1702
+        for i, meta in enumerate(embedding_data.metadata):  # ruff:ignore[too-many-nested-blocks]
             # First try to get season from metadata
             if "season" in meta and meta["season"] != "Unknown":
                 seasons.append(meta["season"])

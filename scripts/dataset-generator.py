@@ -29,10 +29,9 @@ from hrrr_vlm.data.loader import (
     HRRRImageCaptionDataset,
     get_first_mondays,
 )
-from hrrr_vlm.utils.logger import configure_logger
+from hrrr_vlm.utils.logger import configure_logging, get_logger
 
-# Configure logger
-logger = configure_logger()
+logger = get_logger(__name__)
 
 # Globals and defaults
 DEFAULT_MODEL_ID = "google/siglip-base-patch16-224"
@@ -91,11 +90,11 @@ def main(
     dates = list(get_first_mondays(start_year, start_month, end_year, end_month))
     if not dates:
         logger.error(
-            "No dates generated. Check your range: %04d-%02d to %04d-%02d",
-            start_year,
-            start_month,
-            end_year,
-            end_month,
+            "No dates generated; check the requested range",
+            start_year=start_year,
+            start_month=start_month,
+            end_year=end_year,
+            end_month=end_month,
         )
         return 2
 
@@ -121,6 +120,9 @@ def main(
 
     try:
         config = DataGeneratorConfig(output_dir=str(OUTPUT_DIR))
+        configure_logging(
+            log_level=config.log_level, force_json=config.enable_json_logging
+        )
 
         # Use the streamlined approach to create dataset
         HRRRImageCaptionDataset.create_dataset(

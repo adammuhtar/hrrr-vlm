@@ -12,10 +12,9 @@ from torch.utils.data import Dataset
 from transformers import SiglipProcessor
 
 from hrrr_vlm.train.exceptions import DataError
-from hrrr_vlm.utils.logger import configure_logger
+from hrrr_vlm.utils.logger import get_logger
 
-# Configure logging
-logger = configure_logger()
+logger = get_logger(__name__)
 
 
 class HRRRImageCaptionDataSetup(Dataset[tuple[Image.Image, str]]):
@@ -67,7 +66,7 @@ class HRRRImageCaptionDataSetup(Dataset[tuple[Image.Image, str]]):
 
         try:
             self.data = self._load_data(self.data_path)
-            logger.info("Weather dataset initialized with %d samples", len(self.data))
+            logger.info("Weather dataset initialised", num_samples=len(self.data))
         except Exception as e:
             msg = f"Failed to load weather data: {e}"
             logger.exception(msg)
@@ -122,10 +121,12 @@ class HRRRImageCaptionDataSetup(Dataset[tuple[Image.Image, str]]):
         try:
             item = json.loads(line.strip())
         except json.JSONDecodeError as e:
-            logger.warning("Line %d: invalid JSON: %s", line_num, e)
+            logger.warning("Invalid JSON in data file", line_num=line_num, error=str(e))
             return None
         except Exception as e:
-            logger.warning("Line %d: error processing item: %s", line_num, e)
+            logger.warning(
+                "Error processing data item", line_num=line_num, error=str(e)
+            )
             return None
 
         # Validate required fields
@@ -141,7 +142,9 @@ class HRRRImageCaptionDataSetup(Dataset[tuple[Image.Image, str]]):
 
         if missing_fields:
             logger.warning(
-                "Line %d: missing required fields: %s", line_num, missing_fields
+                "Missing required fields",
+                line_num=line_num,
+                missing_fields=missing_fields,
             )
             return None
 
@@ -182,10 +185,10 @@ class HRRRImageCaptionDataSetup(Dataset[tuple[Image.Image, str]]):
             fallback_path = self.images_dir / item["image_filename"]
             if not fallback_path.exists():
                 logger.warning(
-                    "Line %d: image file not found at %s or %s",
-                    line_num,
-                    full_image_path,
-                    fallback_path,
+                    "Image file not found",
+                    line_num=line_num,
+                    image_path=str(full_image_path),
+                    fallback_path=str(fallback_path),
                 )
                 return False
             # Use the fallback path
@@ -214,7 +217,7 @@ class HRRRImageCaptionDataSetup(Dataset[tuple[Image.Image, str]]):
             if month in {6, 7, 8}:
                 return "summer"
         except (ValueError, IndexError):
-            logger.warning("Could not parse date: %s", date_str)
+            logger.warning("Could not parse date", date=date_str)
             return "unknown"
         else:
             return "fall"
@@ -262,14 +265,15 @@ class HRRRImageCaptionDataSetup(Dataset[tuple[Image.Image, str]]):
                 img = img.convert("RGB")
         except (FileNotFoundError, OSError) as e:
             logger.warning(
-                "Failed to load weather image %s: %s. Using blank image.",
-                item["image_filename"],
-                e,
+                "Failed to load weather image; using blank image",
+                image_filename=item["image_filename"],
+                error=str(e),
             )
             img = Image.new("RGB", (512, 512), color="lightgray")
         except Exception:
             logger.exception(
-                "Unexpected error loading weather image %s", item["image_filename"]
+                "Unexpected error loading weather image",
+                image_filename=item["image_filename"],
             )
             img = Image.new("RGB", (512, 512), color="lightgray")
 

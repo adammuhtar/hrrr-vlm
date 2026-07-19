@@ -54,7 +54,7 @@ from .train import (
     ModelTrainingError,
     training_init,
 )
-from .utils import configure_logger
+from .utils import LoggerProtocol, configure_logging, get_logger
 
 __version__ = "0.1.0"
 __author__ = "Adam Muhtar"
@@ -88,6 +88,7 @@ __all__ = [
     "HurricaneDataProcessor",
     "HurricanePredictionResults",
     "HurricanePredictor",
+    "LoggerProtocol",
     "ModelConfig",
     "ModelInitError",
     "ModelTrainingConfig",
@@ -102,9 +103,10 @@ __all__ = [
     "WeatherDataService",
     "WeatherStatistics",
     "WeatherVariableConfig",
-    "configure_logger",
+    "configure_logging",
     "filter_embeddings_by_date",
     "get_first_mondays",
+    "get_logger",
     "run_linear_probe_analysis",
     "training_init",
 ]
