@@ -1,7 +1,9 @@
 [![Visual Studio Code](https://custom-icon-badges.demolab.com/badge/Visual%20Studio%20Code-007ACC?logo=vscode-new&labelColor=%235A5A5A)](https://code.visualstudio.com)
-[![uv](https://img.shields.io/badge/uv-%2330173d?&logo=uv&labelColor=%235A5A5A)](https://docs.astral.sh/uv/getting-started/installation/)
-[![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-%234584b6?&logo=Python&logoColor=white%5BPython)](https://www.python.org)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.12.1-red?&logo=PyTorch&logoColor=white%5BPyTorch)](https://pytorch.org/get-started/locally/)
+[![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-%234584b6?&logo=Python&logoColor=white%5BPython)](https://www.python.org)
+[![uv](https://img.shields.io/badge/uv-%23261230?&logo=uv&labelColor=%235A5A5A)](https://docs.astral.sh/uv/)
+[![ruff](https://img.shields.io/badge/ruff-%23261230?&logo=ruff&labelColor=%235A5A5A)](https://docs.astral.sh/ruff/)
+[![ty](https://img.shields.io/badge/ty-%23261230?&logo=ty&labelColor=%235A5A5A)](https://docs.astral.sh/uv/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.13.0-red?&logo=PyTorch&logoColor=white%5BPyTorch)](https://pytorch.org/get-started/locally/)
 [![Hugging Face](https://img.shields.io/badge/🤗%20Hugging%20Face-HRRR_VLM-%23FFCC4D)](https://huggingface.co/AdamMuhtar/HRRR-ALL-SigLIP)
 [![MIT license](https://img.shields.io/pypi/l/ansicolortags.svg)](https://opensource.org/license/mit)
 <a href="https://colab.research.google.com/github/adammuhtar/hrrr-vlm/blob/main/notebooks/hrrr-all-siglip.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
