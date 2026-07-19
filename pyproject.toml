@@ -14,7 +14,7 @@ dependencies = [
     "cartopy>=0.25.0",
     "datasets>=5.0.0",
     "herbie-data>=2026.3.0",
-    "matplotlib>=3.11.0",
+    "matplotlib>=3.11.1",
     "metpy>=1.7.1",
     "numba>=0.66.0",
     "peft>=0.19.1",
@@ -25,21 +25,21 @@ dependencies = [
     "seaborn>=0.13.2",
     "sentencepiece>=0.2.1",
     "structlog>=25.4.0",
-    "torch>=2.12.1",
-    "torchvision>=0.27.1",
-    "transformers>=5.13.0",
+    "torch>=2.13.0",
+    "torchvision>=0.28.0",
+    "transformers>=5.14.1",
     "umap-learn>=0.5.12",
-    "xarray>=2026.4.0",
+    "xarray>=2026.7.0",
 ]
 
 [dependency-groups]
 dev = [
     "ipykernel>=7.3.0",
-    "ty>=0.0.56",
+    "ty>=0.0.61",
     "pip>=26.1.0",
 ]
 lint = [
-    "ruff>=0.15.20",
+    "ruff>=0.15.22",
 ]
 test = [
     "pytest>=9.1.1",
@@ -48,7 +48,7 @@ test = [
 ]
 
 [build-system]
-requires = ["uv_build>=0.11.26,<0.12.0"]
+requires = ["uv_build>=0.11.29,<0.12.0"]
 build-backend = "uv_build"
 
 [tool.uv.sources]
@@ -65,43 +65,45 @@ url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [tool.ruff.lint]
-preview = true
+allowed-confusables = ["–", "−", "×"]   # Docstrings quote doctrine notation verbatim (en dashes, minus signs, ×).
 select = ["ALL"]
+fixable = ["ALL"]
+preview = true
 ignore = [
-    "ANN401",   # Allow Any type
-    "BLE001",   # Allow catching broad Exception
-    "C901",     # Allow complex structures
-    "COM812",   # Incompatible with formatter skip-magic-trailing-comma
-    "CPY001",   # Copyright notices not required
-    "D205",     # Blank line after docstring description not required
-    "ISC001",   # Incompatible with formatter
-    "PLR0911",  # Allow many return statements
-    "PLR0912",  # Allow many branching conditional statements
-    "PLR0913",  # Allow many arguments
-    "PLR0914",  # Allow many local variables
-    "PLR0915",  # Allow many statements
-    "PLR0917",  # Allow many positional arguments
-    "PLW0717",  # Allow many statements in try clause
-    "TRY003",   # Allow messages not defined in the exception class itself
+    "any-type",   # Allow Any type
+    "blind-except",   # Allow catching broad Exception
+    "complex-structure",     # Allow complex structures
+    "missing-trailing-comma",   # Incompatible with formatter skip-magic-trailing-comma
+    "missing-copyright-notice",   # Copyright notices not required
+    "missing-blank-line-after-summary",     # Blank line after docstring description not required
+    "single-line-implicit-string-concatenation",   # Incompatible with formatter
+    "too-many-return-statements",  # Allow many return statements
+    "too-many-branches",  # Allow many branching conditional statements
+    "too-many-arguments",  # Allow many arguments
+    "too-many-locals",  # Allow many local variables
+    "too-many-statements",  # Allow many statements
+    "too-many-positional-arguments",  # Allow many positional arguments
+    "too-many-statements-in-try-clause",  # Allow many statements in try clause
+    "raise-vanilla-args",   # Allow messages not defined in the exception class itself
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "test_*.py" = [
-    "S101",     # Allow use of assert statements
-    "S106",     # Allow pseudo hardcoded passwords
-    "S108",     # Allow temporary files
-    "SLF001",   # Allow access to private members
-    "PLR2004",  # Allow use of magic numbers
-    "PLR6301",  # Allow undecorated methods
-    "RUF069",   # Allow float equality comparisons against exact literals
+    "assert",     # Allow use of assert statements
+    "hardcoded-password-func-arg",     # Allow pseudo hardcoded passwords
+    "hardcoded-temp-file",     # Allow temporary files
+    "private-member-access",   # Allow access to private members
+    "magic-value-comparison",  # Allow use of magic numbers
+    "no-self-use",  # Allow undecorated methods
+    "float-equality-comparison",   # Allow float equality comparisons against exact literals
 ]
 "*.ipynb" = [
-    "E402",     # Allow module level import not at top of file
-    "E501",     # Allow long lines
-    "T201",     # Allow print statements
-    "I001",     # Allow unsorted imports
-    "FBT003",   # Allow boolean positional values in calls
-    "S106",     # Allow placeholder tokens in login examples
+    "module-import-not-at-top-of-file",     # Allow module level import not at top of file
+    "line-too-long",     # Allow long lines
+    "print",     # Allow print statements
+    "unsorted-imports",     # Allow unsorted imports
+    "boolean-positional-value-in-call",   # Allow boolean positional values in calls
+    "hardcoded-password-func-arg",     # Allow placeholder tokens in login examples
 ]
 
 [tool.ruff.format]

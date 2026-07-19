@@ -334,7 +334,7 @@ class TestHRRRLoRASigLIPTrainerSetupModel:
     def test_setup_model_no_logit_scale(
         self,
         mock_siglip_model: Mock,
-        mock_lora_config: Mock,  # noqa: ARG002
+        mock_lora_config: Mock,  # ruff:ignore[unused-method-argument]
         mock_get_peft_model: Mock,
         trainer: HRRRLoRASigLIPTrainer,
     ) -> None:

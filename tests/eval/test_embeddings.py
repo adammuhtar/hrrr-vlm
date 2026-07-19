@@ -601,7 +601,7 @@ class TestEmbeddingExtractorSaveEmbeddings:
         with tempfile.TemporaryDirectory() as temp_dir:
             save_path = Path(temp_dir) / "embeddings.invalid"
 
-            with pytest.raises(ValueError) as exc_info:  # noqa: PT011
+            with pytest.raises(ValueError) as exc_info:  # ruff:ignore[pytest-raises-too-broad]
                 EmbeddingExtractor.save_embeddings(
                     sample_embedding_data, save_path, save_format="invalid"
                 )
@@ -742,7 +742,7 @@ class TestEmbeddingExtractorLoadEmbeddings:
         with tempfile.TemporaryDirectory() as temp_dir:
             load_path = Path(temp_dir) / "embeddings.invalid"
 
-            with pytest.raises(ValueError) as exc_info:  # noqa: PT011
+            with pytest.raises(ValueError) as exc_info:  # ruff:ignore[pytest-raises-too-broad]
                 EmbeddingExtractor.load_embeddings(load_path, load_format="invalid")
 
             assert "Unsupported format: invalid" in str(exc_info.value)
